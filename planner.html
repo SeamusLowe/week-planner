@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week Planner</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-2: #f0f2f5;
+    --text: #1c1f26;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #4f46e5;
+    --accent-soft: #eef2ff;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .06);
+
+    --c-blue: #3b82f6;   --c-blue-bg: #eff6ff;
+    --c-green: #10b981;  --c-green-bg: #ecfdf5;
+    --c-orange: #f59e0b; --c-orange-bg: #fffbeb;
+    --c-pink: #ec4899;   --c-pink-bg: #fdf2f8;
+    --c-purple: #8b5cf6; --c-purple-bg: #f5f3ff;
+    --c-teal: #14b8a6;   --c-teal-bg: #f0fdfa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --surface: #171a21;
+      --surface-2: #1f232c;
+      --text: #e7e9ee;
+      --muted: #9aa1ad;
+      --border: #2a2f3a;
+      --accent: #818cf8;
+      --accent-soft: #23264a;
+      --shadow: none;
+
+      --c-blue-bg: #172036;
+      --c-green-bg: #12261f;
+      --c-orange-bg: #2a2214;
+      --c-pink-bg: #2b1724;
+      --c-purple-bg: #221c36;
+      --c-teal-bg: #11262a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.45 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+  .app {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 24px 40px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  .title h1 { margin: 0; font-size: 26px; font-weight: 650; letter-spacing: -.02em; }
+  .title p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .nav { display: flex; gap: 8px; align-items: center; }
+  button {
+    font: inherit;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background .15s, border-color .15s;
+  }
+  button:hover { background: var(--surface-2); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .icon-btn { width: 38px; padding: 8px 0; font-size: 18px; line-height: 1; }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 20px;
+    align-items: start;
+  }
+  .week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  /* Day columns */
+  .day {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .day-head {
+    padding: 12px 12px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .day-name { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .day-num { font-size: 22px; font-weight: 650; letter-spacing: -.02em; }
+  .day.today { border-color: var(--accent); }
+  .day.today .day-head { background: var(--accent-soft); }
+  .day.today .day-name, .day.today .day-num { color: var(--accent); }
+  .today-tag {
+    margin-left: auto;
+    font-size: 11px; font-weight: 600;
+    color: #fff; background: var(--accent);
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .events { list-style: none; margin: 0; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .event {
+    --c: var(--c-blue); --cb: var(--c-blue-bg);
+    background: var(--cb);
+    border-left: 3px solid var(--c);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .event.green  { --c: var(--c-green);  --cb: var(--c-green-bg); }
+  .event.orange { --c: var(--c-orange); --cb: var(--c-orange-bg); }
+  .event.pink   { --c: var(--c-pink);   --cb: var(--c-pink-bg); }
+  .event.purple { --c: var(--c-purple); --cb: var(--c-purple-bg); }
+  .event.teal   { --c: var(--c-teal);   --cb: var(--c-teal-bg); }
+  .event-time { font-size: 12px; font-weight: 600; color: var(--c); font-variant-numeric: tabular-nums; }
+  .event-title { font-weight: 600; font-size: 14px; margin-top: 1px; overflow-wrap: anywhere; }
+  .event-meta { font-size: 12px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+  .empty { color: var(--muted); font-size: 13px; padding: 14px 12px; }
+
+  /* To-do panel */
+  .todo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    position: sticky;
+    top: 20px;
+  }
+  .todo h2 { margin: 0; font-size: 17px; font-weight: 650; }
+  .todo-count { color: var(--muted); font-size: 13px; margin: 2px 0 12px; }
+  .todo ul { list-style: none; margin: 0; padding: 0; }
+  .todo li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+  }
+  .check {
+    flex: none;
+    width: 18px; height: 18px; margin-top: 1px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: grid; place-items: center;
+  }
+  .done .check { background: var(--accent); border-color: var(--accent); }
+  .done .check::after {
+    content: ""; width: 5px; height: 9px;
+    border: solid #fff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .todo-text { font-size: 14px; overflow-wrap: anywhere; }
+  .done .todo-text { color: var(--muted); text-decoration: line-through; }
+  .due { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .due.overdue { color: #dc2626; font-weight: 600; }
+  .hint { margin: 14px 0 0; font-size: 12px; color: var(--muted); }
+  code { font-family: Consolas, ui-monospace, monospace; font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+  .error {
+    background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;
+  }
+
+  /* Smaller screens: stack days as a list */
+  @media (max-width: 1250px) {
+    .week { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .day { min-height: 0; }
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .todo { position: static; }
+  }
+  @media (max-width: 520px) {
+    .app { padding: 20px 16px 32px; }
+    .week { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title">
+      <h1 id="week-label">Week</h1>
+      <p id="week-range"></p>
+    </div>
+    <div class="nav">
+      <button class="icon-btn" id="prev" title="Previous week" aria-label="Previous week">‹</button>
+      <button id="today">This week</button>
+      <button class="icon-btn" id="next" title="Next week" aria-label="Next week">›</button>
+    </div>
+  </header>
+
+  <div id="error"></div>
+
+  <div class="layout">
+    <main class="week" id="week"></main>
+    <aside class="todo">
+      <h2>To-do</h2>
+      <p class="todo-count" id="todo-count"></p>
+      <ul id="todo-list"></ul>
+      <p class="hint">Edit <code>data.js</code> to add events and to-dos, then refresh.</p>
+    </aside>
+  </div>
+</div>
+
+<!-- Data lives in data.js, next to this file -->
+<script src="data.js"></script>
+<script>
+(function () {
+  const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const COLORS = ["blue", "green", "orange", "pink", "purple", "teal"];
+
+  const data = window.PLANNER_DATA;
+  if (!data) {
+    document.getElementById("error").innerHTML =
+      '<div class="error"><strong>Couldn\'t load data.js.</strong> Make sure it is in the same folder as this page and has no typos (a missing comma or quote is the usual cause).</div>';
+  }
+  const events = (data && Array.isArray(data.events)) ? data.events : [];
+  const todos = (data && Array.isArray(data.todos)) ? data.todos : [];
+
+  // ---- Date helpers (local time, no time-zone surprises) ----
+  function parseDate(s) {
+    const [y, m, d] = String(s).split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+  function key(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function mondayOf(d) {
+    const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return addDays(x, -((x.getDay() + 6) % 7));
+  }
+  function isoWeek(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t - yearStart) / 86400000 + 1) / 7);
+  }
+  const fmtShort = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short" });
+  const fmtLong = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" });
+
+  // ---- Time helpers ----
+  function toMinutes(t) {
+    const [h, m] = String(t || "0:0").split(":").map(Number);
+    return (h || 0) * 60 + (m || 0);
+  }
+  function fmtTime(mins) {
+    const h = Math.floor(mins / 60) % 24, m = mins % 60;
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  }
+  function fmtDuration(mins) {
+    mins = Number(mins) || 0;
+    const h = Math.floor(mins / 60), m = mins % 60;
+    if (h && m) return h + "h " + m + "m";
+    if (h) return h + "h";
+    return m + "m";
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  // Group events by date once. Repeating events ("daily" / "weekly") are
+  // copied onto every matching date up to "until" (or one year if no end date).
+  const byDate = {};
+  for (const e of events) {
+    if (!e || !e.date) continue;
+    const step = e.repeat === "daily" ? 1 : e.repeat === "weekly" ? 7 : 0;
+    if (!step) {
+      (byDate[e.date] = byDate[e.date] || []).push(e);
+      continue;
+    }
+    const first = parseDate(e.date);
+    const last = e.until ? parseDate(e.until) : addDays(first, 365);
+    for (let d = first; d <= last; d = addDays(d, step)) {
+      const k = key(d);
+      (byDate[k] = byDate[k] || []).push(e);
+    }
+  }
+  for (const k in byDate) byDate[k].sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+
+  let weekStart = mondayOf(new Date());
+
+  function renderWeek() {
+    const todayKey = key(new Date());
+    const weekEnd = addDays(weekStart, 6);
+
+    document.getElementById("week-label").textContent = "Week " + isoWeek(weekStart);
+    document.getElementById("week-range").textContent =
+      fmtShort.format(weekStart) + " – " + fmtLong.format(weekEnd);
+
+    let html = "";
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(weekStart, i);
+      const k = key(d);
+      const list = byDate[k] || [];
+      const isToday = k === todayKey;
+
+      html += '<section class="day' + (isToday ? " today" : "") + '">' +
+        '<div class="day-head"><span class="day-name">' + DAY_NAMES[i] + '</span>' +
+        '<span class="day-num">' + d.getDate() + '</span>' +
+        (isToday ? '<span class="today-tag">Today</span>' : "") + '</div>';
+
+      if (list.length === 0) {
+        html += '<div class="empty">No events</div>';
+      } else {
+        html += '<ul class="events">';
+        for (const e of list) {
+          const start = toMinutes(e.start);
+          const end = start + (Number(e.duration) || 0);
+          const color = COLORS.includes(e.color) ? e.color : "blue";
+          html += '<li class="event ' + color + '">' +
+            '<div class="event-time">' + fmtTime(start) + ' – ' + fmtTime(end) + ' · ' + fmtDuration(e.duration) + '</div>' +
+            '<div class="event-title">' + esc(e.title) + '</div>' +
+            (e.location ? '<div class="event-meta">' + esc(e.location) + '</div>' : "") +
+            '</li>';
+        }
+        html += '</ul>';
+      }
+      html += '</section>';
+    }
+    document.getElementById("week").innerHTML = html;
+  }
+
+  function renderTodos() {
+    const todayKey = key(new Date());
+    // Open items first (soonest due date first), finished items last
+    const sorted = todos.filter(Boolean).slice().sort((a, b) => {
+      if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+      return (a.due || "9999").localeCompare(b.due || "9999");
+    });
+    const open = sorted.filter(t => !t.done).length;
+    document.getElementById("todo-count").textContent =
+      sorted.length ? open + " of " + sorted.length + " left" : "Nothing to do";
+
+    document.getElementById("todo-list").innerHTML = sorted.map(t => {
+      let due = "";
+      if (t.due) {
+        const overdue = !t.done && t.due < todayKey;
+        due = '<span class="due' + (overdue ? " overdue" : "") + '">' +
+          (overdue ? "Overdue · " : "Due ") + fmtShort.format(parseDate(t.due)) + '</span>';
+      }
+      return '<li class="' + (t.done ? "done" : "") + '"><span class="check"></span>' +
+        '<span class="todo-text">' + esc(t.text) + due + '</span></li>';
+    }).join("");
+  }
+
+  document.getElementById("prev").onclick = () => { weekStart = addDays(weekStart, -7); renderWeek(); };
+  document.getElementById("next").onclick = () => { weekStart = addDays(weekStart, 7); renderWeek(); };
+  document.getElementById("today").onclick = () => { weekStart = mondayOf(new Date()); renderWeek(); };
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") document.getElementById("prev").click();
+    if (e.key === "ArrowRight") document.getElementById("next").click();
+  });
+
+  renderWeek();
+  renderTodos();
+})();
+</script>
+</body>
+</html>
