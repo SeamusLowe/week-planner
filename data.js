@@ -27,10 +27,12 @@ window.PLANNER_DATA = {
     { date: "2026-10-26", start: "12:30", duration: 30,  title: "Meeting with Antoine", color: "blue",   repeat: "weekly", until: "2026-12-20" },
     { date: "2026-10-26", start: "19:00", duration: 60,  title: "Precept TA",           color: "purple", repeat: "weekly", until: "2026-12-20" },
     { date: "2026-10-27", start: "13:00", duration: 60,  title: "Meeting with Jason",   color: "teal" },
+    { date: "2026-10-30", start: "13:00", duration: 90,  title: "Thrust 1 Talk",        color: "orange" },
   ],
 
   todos: [
     { text: "Pack for move",                  done: false, due: "2026-11-02" },
     { text: "Buy flights for Christmas",      done: false },
+    { text: "Call PSE&G and the oil people",  done: false },
   ],
 };
