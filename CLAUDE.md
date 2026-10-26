@@ -25,6 +25,14 @@ The user opens the page by double-clicking it, so there is no web server. That r
   - Colours are CSS custom properties on `:root`, with a `prefers-color-scheme: dark` override. Event colours map to `.event.<color>` classes.
 - The to-do list is read-only. Ticking an item on the page is not supported, because the page cannot write back to `data.js`; `done` is changed in the file.
 
+## Publishing
+
+The repo is public at https://github.com/SeamusLowe/week-planner and served by GitHub Pages from the root of `main`. The live page is https://seamuslowe.github.io/week-planner/planner.html. The user views their schedule there and often edits it by talking to Claude from their phone (Claude Code on the web / mobile app).
+
+- After changing `data.js`, commit it and push straight to `main`, without a feature branch or PR. Otherwise the live site won't update. Pages redeploys within a minute or two.
+- The repo and site are public, which the user has accepted. Still, don't add anything sensitive to `data.js` beyond what they ask for.
+- `planner.html` loads `data.js` with a `?v=<timestamp>` query (via `document.write`) to bypass the Pages cache. It must stay a classic, synchronous script, because the main script reads `window.PLANNER_DATA` right after it.
+
 ## Working with the user's data
 
 `data.js` contains the user's real events and to-dos (all sample data has been removed).

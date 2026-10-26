@@ -230,8 +230,9 @@
   </div>
 </div>
 
-<!-- Data lives in data.js, next to this file -->
-<script src="data.js"></script>
+<!-- Data lives in data.js, next to this file. The timestamp stops browsers
+     showing an old copy after it changes (GitHub Pages caches for ~10 min). -->
+<script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
 <script>
 (function () {
   const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
